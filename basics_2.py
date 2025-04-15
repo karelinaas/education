@@ -8,14 +8,34 @@
 # Если же длина в рамках допустимого, возвращается True.
 
 
+# Тут, видимо, не совсем понятно было задание)) Саму логику исключения можно и нужно писать в его классе,
+# это и подразумевалось. Вот как это реализовала я:
 class AnswerIsTooLong(Exception):
-    pass
+    def __init__(
+        self,
+        *,
+        message: str | None = None,
+        extra_info: tuple[int, int] | None = None,
+    ):
+        if not message:
+            answer_info = ""
+            if len(extra_info) >= 2:
+                answer_info = (
+                    f' ({extra_info[0]} симв. при максимальной длине '
+                    f'{extra_info[1]} симв.)'
+                )
+            # У исключения всего 1 цель, поэтому можно зашить сообщение об ошибке и прямо в него.
+            message = (
+                "Введён слишком длиный ответ{answer_info}. Повторите ввод."
+                .format(answer_info=answer_info)
+            )
+        super().__init__(message)
 
 
 def validate_answer(answer: str, max_len: int) -> bool | None:
     len_answer = len(answer)
     if len_answer > max_len:
-        raise AnswerIsTooLong(f"Введён слишком длиный ответ ({len_answer} симв. при максимальной длине {max_len} симв.). Повторите ввод.")
+        raise AnswerIsTooLong(extra_info=(len_answer, max_len))
     return True
 
 datasets = [
@@ -33,8 +53,9 @@ datasets = [
 
 for dataset in datasets:
     try:
-        validate_answer(*dataset)
-        print(f"Ответ {dataset[0]} валиден")
+        is_valid = validate_answer(*dataset)
+        is_valid_str = '' if is_valid else ' не'
+        print(f'Ответ "{dataset[0]}"{is_valid_str} валиден.')
     except AnswerIsTooLong as e:
         print(e)
 

@@ -43,27 +43,31 @@ class Robot:
 
     def handle_command(self, command: str):
         message = []
-        # TODO тут опционально: или переписать на match, или просто сделать более адеватную, удобочитаемую проверку
-        # или оставить как есть))
-        for part in command.split():
-            if part.isdigit() and part.replace('.', '').isdigit():
-                message.append(int(part))
-            elif not part.isdigit() and part.replace('.', '').isdigit():
-                message.append(float(part))
-            else:
-                message.append(part)
+        # В качестве примера написала такой match-case, но я бы не сказала, что это удобно и красиво))
+        # Так что пусть будет просто для иллюстрации.
+        for part in command.split(' '):
+            match (part.isdigit(), part.replace('.', '').isdigit()):
+                case (True, True):
+                    message.append(int(part))
+                case (False, True):
+                    message.append(float(part))
+                case _:
+                    message.append(part)
 
-        # TODO переписать на match. Как видишь, код совсем не удобочитаемый + возможна куча IndexError.
-        match message[0]:
-            case 'ЗВУК':
-                self.beep(message[2], message[1])
-            case 'ПОВЕРНИ_ГОЛОВУ':
-                self.rotate_neck(message[1])
-            case 'ДИОД':
-                if len(message) == 5:
-                    self.leds[message[1]].set_color(*message[1:])
-                else:
-                    self.leds[message[1]].set_brightness(message[1], message[2])
+        # Вот такой лайфхак можно найти в книге Рамальо, о чем я писала в самом задании)
+        # Это защищает нас сразу от двух потенциальных проблем:
+        # - не будет IndexError на message[0] даже при пустом message
+        # - не будет TypeError из-за нехватки / лишних параметров, передаваемых в метод
+        # В общем, очень удобно для подстраховки от неправильного ввода команд пользователем.
+        match message:
+            case ['ЗВУК', frequency, times]:
+                self.beep(times, frequency)
+            case ['ПОВЕРНИ_ГОЛОВУ', angle]:
+                self.rotate_neck(angle)
+            case ['ДИОД', ident, intensity]:
+                self.leds[ident].set_brightness(ident, intensity)
+            case ['ДИОД', ident, red, green, blue]:
+                self.leds[ident].set_color(ident, red, green, blue)
             case _:
                 raise InvalidCommand(command)
 
