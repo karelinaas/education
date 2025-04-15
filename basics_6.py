@@ -24,11 +24,13 @@ def send_greeting(name: str, *, greeting: str, separator: str, emotion: str | No
         return f"{greeting}, {name}{separator}"
 
 # Частичное применение (тут пока без указания эмоции)
+# Тут затесался лишний восклицательный знак)) исправила
 say_hello = partial(send_greeting, greeting="Здравствуй", separator="!")
 say_hi = partial(send_greeting, greeting="Привет", separator=".")
 
 # С эмоцией
 # say_sad_hello = partial(send_greeting, greeting="Привет", separator=".", emotion="*грустно*")
+# Можно проще, т.к. у нас в say_hello уже задано приветствие и знак
 say_sad_hello = partial(say_hello, emotion="*грустно*")
 
 print(say_hello("Алиса"))  # Здравствуй, Алиса!
