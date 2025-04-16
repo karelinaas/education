@@ -70,6 +70,10 @@ def handle_color_match(color: int) -> str:
             return "Это пион"
         case Color.TRANSPARENT | Color.GREEN | Color.BLACK:
             return "Не цветок"
+        # В этом задании вообще всё отлично!
+        # Единственное, можно учесть, что в метод могут передать что-то вообще не из енама Color.
+        case _:
+            return "Ошибка обработки."
 
 
 for color in Color:
